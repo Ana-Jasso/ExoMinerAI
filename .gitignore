@@ -15,9 +15,6 @@ Thumbs.db
 .ipynb_checkpoints/
 
 # Datos originales y procesados
-data/raw/
-data/processed/
-*.csv
 *.tsv
 *.xlsx
 

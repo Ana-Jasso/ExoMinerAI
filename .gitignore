@@ -1,0 +1,57 @@
+# Entornos virtuales
+venv/
+.env/
+*.env
+
+# Archivos de configuración local
+*.local
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Datos originales y procesados
+data/raw/
+data/processed/
+*.csv
+*.tsv
+*.xlsx
+
+# Modelos entrenados
+*.pkl
+*.h5
+*.joblib
+models/saved/
+
+# Archivos de salida
+*.out
+*.pdf
+*.png
+*.jpg
+*.jpeg
+
+# Archivos temporales
+*.tmp
+*.bak
+
+# Archivos de compilación
+__pycache__/
+*.py[cod]
+
+# Archivos de Streamlit/Flask
+*.db
+*.sqlite3
+
+# Docker
+*.pid
+*.sock
+
+# VSCode
+.vscode/
+
+# Otros
+reports/

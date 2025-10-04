@@ -29,21 +29,37 @@ ExoMinerAI es una herramienta de inteligencia artificial diseñada para identifi
 
 ## 📂 Estructura del Proyecto
 ExoMinerAI/
+
 ├── data/                  # Datasets originales y procesados
+
 │   ├── raw/               # Datos sin procesar (Kepler, K2, TESS)
+
 │   └── processed/         # Datos limpios y listos para modelar
+
 ├── notebooks/             # Exploración, visualización y prototipos
+
 │   ├── EDA.ipynb          # Análisis exploratorio de datos
+
 │   └── ModelTests.ipynb   # Pruebas de modelos y métricas
+
 ├── src/                   # Código fuente
+
 │   ├── preprocessing/     # Scripts de limpieza y transformación
+
 │   ├── models/            # Entrenamiento, evaluación y predicción
+
 │   ├── webapp/            # Código de la interfaz web
+
 │   └── utils/             # Funciones auxiliares (visualización, métricas)
+
 ├── tests/                 # Pruebas unitarias y de integración
+
 ├── reports/               # Resultados, gráficas, documentación técnica
+
 ├── requirements.txt       # Dependencias del proyecto
+
 ├── README.md              # Descripción del proyecto
+
 └── .gitignore             # Archivos que no deben subirse a GitHub
 
 ## 📚 Recursos

@@ -8,6 +8,8 @@ import logging
 import uuid
 import zipfile
 import io
+import pandas as pd
+from openpyxl import load_workbook
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -26,7 +28,7 @@ DB_CONFIG = {
 
 # Configuración de carpetas
 UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'pdf', 'txt', 'csv', 'json'}
+ALLOWED_EXTENSIONS = {'pdf', 'txt', 'csv', 'json', 'xlsx'}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 # Crear carpeta de uploads si no existe
@@ -61,10 +63,128 @@ def save_file_to_disk(file):
     except Exception as e:
         logger.error(f"Error guardando archivo: {e}")
         return None, None
+    
+def procesar_excel_plantilla(file_path):
+    """Procesar archivo Excel según la plantilla de exoplanetas"""
+    try:
+        # Cargar el archivo Excel
+        wb = load_workbook(file_path, data_only=True)
+        sheet = wb.active
+        
+        # Mapeo de filas a nombres de columna_final (A2:A12)
+        mapeo_columnas = {
+            2: "type",
+            3: "ra", 
+            4: "dec",
+            5: "pl_orbper",
+            6: "pl_rade",
+            7: "pl_insol",
+            8: "pl_eqt",
+            9: "st_teff",
+            10: "st_logg",
+            11: "st_rad",
+            12: "st_tmag"
+        }
+        
+        datos_exoplanetas = []
+        
+        for row in range(2, 13):  # Filas 2 a 12
+            # Obtener el nombre de la columna_final de la celda A
+            columna_final = sheet[f'A{row}'].value
+            
+            # Si la celda A está vacía, usar el mapeo por defecto
+            if columna_final is None or columna_final == '':
+                columna_final = mapeo_columnas.get(row, f"fila_{row}")
+            else:
+                columna_final = str(columna_final).strip()
+            
+            fila_datos = {
+                'columna_final': columna_final,
+                'fila_excel': row  # Mantenemos esto como referencia
+            }
+            
+            # Columna B: Origen TESS
+            valor_b = sheet[f'B{row}'].value
+            if valor_b is not None and valor_b != '—' and valor_b != '':
+                fila_datos['origen_tess'] = str(valor_b).strip()
+            
+            # Columna C: Origen Kepler
+            valor_c = sheet[f'C{row}'].value
+            if valor_c is not None and valor_c != '—' and valor_c != '':
+                fila_datos['origen_kepler'] = str(valor_c).strip()
+            
+            # Columna D: Origen K2
+            valor_d = sheet[f'D{row}'].value
+            if valor_d is not None and valor_d != '—' and valor_d != '':
+                fila_datos['origen_k2'] = str(valor_d).strip()
+            
+            # Columna E: Descripción
+            valor_e = sheet[f'E{row}'].value
+            if valor_e is not None and valor_e != '':
+                fila_datos['descripcion'] = str(valor_e).strip()
+            
+            # Solo agregar filas que tengan datos en al menos una columna B, C, D o E
+            tiene_datos = any(key in fila_datos for key in ['origen_tess', 'origen_kepler', 'origen_k2', 'descripcion'])
+            
+            if tiene_datos:
+                datos_exoplanetas.append(fila_datos)
+        
+        return datos_exoplanetas
+        
+    except Exception as e:
+        logger.error(f"Error procesando Excel: {e}")
+        raise Exception(f"Error al procesar archivo Excel: {str(e)}")
+
+def extraer_metadatos_excel(file_path):
+    """Extraer metadatos adicionales del archivo Excel"""
+    try:
+        wb = load_workbook(file_path, data_only=True)
+        sheet = wb.active
+        
+        metadatos = {
+            'total_filas_procesadas': 0,
+            'columnas_detectadas': [],
+            'columnas_finales': [],
+            'primera_fila_con_datos': None,
+            'ultima_fila_con_datos': None
+        }
+        
+        # Contar filas con datos en el rango B2:E12 y recolectar nombres de columnas finales
+        filas_con_datos = 0
+        columnas_finales = []
+        
+        for row in range(2, 13):
+            tiene_datos = any(
+                sheet[col + str(row)].value is not None and 
+                sheet[col + str(row)].value != '—' and 
+                sheet[col + str(row)].value != ''
+                for col in ['B', 'C', 'D', 'E']
+            )
+            
+            if tiene_datos:
+                filas_con_datos += 1
+                # Obtener nombre de columna final
+                columna_final = sheet[f'A{row}'].value
+                if columna_final:
+                    columnas_finales.append(str(columna_final).strip())
+                
+                if metadatos['primera_fila_con_datos'] is None:
+                    metadatos['primera_fila_con_datos'] = row
+                metadatos['ultima_fila_con_datos'] = row
+        
+        metadatos['total_filas_procesadas'] = filas_con_datos
+        metadatos['columnas_detectadas'] = ['origen_tess', 'origen_kepler', 'origen_k2', 'descripcion']
+        metadatos['columnas_finales'] = columnas_finales
+        
+        return metadatos
+        
+    except Exception as e:
+        logger.error(f"Error extrayendo metadatos Excel: {e}")
+        return {}
 
 @app.route('/upload', methods=['POST'])
 def upload_files():
-    """Endpoint para subir archivos"""
+    """Endpoint para subir archivos y procesar datos de Excel"""
     try:
         if 'files' not in request.files:
             return jsonify({'error': 'No se encontraron archivos'}), 400
@@ -87,6 +207,7 @@ def upload_files():
         cursor = connection.cursor()
         archivos_subidos = []
         archivos_con_error = []
+        datos_procesados = []  # Para almacenar datos extraídos
         
         for file in files:
             # Validar tipo de archivo
@@ -119,7 +240,7 @@ def upload_files():
                 continue
             
             # Insertar metadata en la base de datos
-            sql = """
+            sql_documento = """
             INSERT INTO documentos_exoplanetas 
             (nombre_archivo, tipo_archivo, tamano_archivo, ruta_archivo, donador, descripcion, consentimiento)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -127,7 +248,7 @@ def upload_files():
             
             file_extension = file.filename.rsplit('.', 1)[1].lower()
             
-            cursor.execute(sql, (
+            cursor.execute(sql_documento, (
                 file.filename,          # Nombre original
                 file_extension,         # Extensión
                 file_size,              # Tamaño
@@ -137,12 +258,60 @@ def upload_files():
                 consentimiento          # Consentimiento
             ))
             
+            # Obtener el ID del documento recién insertado
+            documento_id = cursor.lastrowid
+            
+            # Procesar datos Excel si es un archivo xlsx
+            datos_extraidos = []
+            if file_extension == 'xlsx':
+                try:
+                    # Procesar el archivo Excel
+                    datos_excel = procesar_excel_plantilla(file_path)
+                    metadatos_excel = extraer_metadatos_excel(file_path)
+                    
+                    # Insertar datos en la tabla datos_exoplanetas
+                    if datos_excel:
+                        sql_datos = """
+                        INSERT INTO datos_exoplanetas 
+                        (documento_id, columna_final, origen_tess, origen_kepler, origen_k2, descripcion)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                        """
+                        
+                        for dato in datos_excel:
+                            cursor.execute(sql_datos, (
+                                documento_id,
+                                dato['columna_final'],
+                                dato.get('origen_tess'),
+                                dato.get('origen_kepler'),
+                                dato.get('origen_k2'),
+                                dato.get('descripcion')
+                            ))
+                        
+                        datos_extraidos = datos_excel
+                    
+                except Exception as e:
+                    logger.error(f"Error procesando Excel {file.filename}: {e}")
+                    # No marcamos como error, solo registramos el problema
+                    datos_extraidos = [{'error': f'Error procesando datos Excel: {str(e)}'}]
+            
             archivos_subidos.append({
                 'nombre': file.filename,
                 'tipo': file_extension,
                 'tamano': file_size,
-                'ruta': unique_filename
+                'ruta': unique_filename,
+                'documento_id': documento_id,
+                'datos_extraidos': len(datos_extraidos) if file_extension == 'xlsx' else 0,
+                'procesado_excel': file_extension == 'xlsx'
             })
+            
+            # Agregar datos procesados a la respuesta
+            if datos_extraidos:
+                datos_procesados.append({
+                    'documento_id': documento_id,
+                    'nombre_archivo': file.filename,
+                    'total_datos': len(datos_extraidos),
+                    'datos': datos_extraidos
+                })
         
         connection.commit()
         cursor.close()
@@ -150,8 +319,12 @@ def upload_files():
         
         response_data = {
             'message': f'Se subieron {len(archivos_subidos)} archivos correctamente',
-            'archivos': archivos_subidos
+            'archivos': archivos_subidos,
+            'procesados_excel': len([f for f in archivos_subidos if f['procesado_excel']])
         }
+        
+        if datos_procesados:
+            response_data['datos_procesados'] = datos_procesados
         
         if archivos_con_error:
             response_data['errores'] = archivos_con_error
@@ -161,7 +334,7 @@ def upload_files():
     except Exception as e:
         logger.error(f"Error en upload_files: {e}")
         return jsonify({'error': 'Error interno del servidor'}), 500
-
+        
 @app.route('/api/descargar-todos', methods=['GET'])
 def descargar_todos_documentos():
     """Endpoint para descargar todos los documentos en un ZIP"""
@@ -252,6 +425,32 @@ def total_donadores():
     except Exception as e:
         logger.error(f"Error en total-donadores: {e}")
         return jsonify({'error': 'Error interno del servidor'}), 500
+    
+@app.route('/api/descargar-plantilla', methods=['GET'])
+def descargar_plantilla():
+    """Endpoint para descargar la plantilla Excel"""
+    try:
+        # Ruta del archivo plantilla
+        plantilla_path = os.path.join(os.path.dirname(__file__), 'Plantilla.xlsx')
+        
+        # Verificar que el archivo existe
+        if not os.path.exists(plantilla_path):
+            return jsonify({
+                'success': False,
+                'error': 'Plantilla no disponible'
+            }), 404
+        
+        # Enviar archivo
+        return send_file(
+            plantilla_path,
+            as_attachment=True,
+            download_name='Plantilla_Exoplanetas.xlsx',
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        
+    except Exception as e:
+        logger.error(f"Error en descargar_plantilla: {e}")
+        return jsonify({'error': 'Error al descargar la plantilla'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

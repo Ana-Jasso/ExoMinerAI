@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 05-10-2025 a las 10:25:55
+-- Tiempo de generación: 05-10-2025 a las 18:26:30
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
 
@@ -20,6 +20,23 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `nasa`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `datos_exoplanetas`
+--
+
+CREATE TABLE `datos_exoplanetas` (
+  `id` int(11) NOT NULL,
+  `documento_id` int(11) NOT NULL,
+  `columna_final` varchar(100) NOT NULL,
+  `origen_tess` varchar(255) DEFAULT NULL,
+  `origen_kepler` varchar(255) DEFAULT NULL,
+  `origen_k2` varchar(255) DEFAULT NULL,
+  `descripcion` text DEFAULT NULL,
+  `fecha_procesado` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -44,6 +61,13 @@ CREATE TABLE `documentos_exoplanetas` (
 --
 
 --
+-- Indices de la tabla `datos_exoplanetas`
+--
+ALTER TABLE `datos_exoplanetas`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `documento_id` (`documento_id`);
+
+--
 -- Indices de la tabla `documentos_exoplanetas`
 --
 ALTER TABLE `documentos_exoplanetas`
@@ -54,10 +78,26 @@ ALTER TABLE `documentos_exoplanetas`
 --
 
 --
+-- AUTO_INCREMENT de la tabla `datos_exoplanetas`
+--
+ALTER TABLE `datos_exoplanetas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `documentos_exoplanetas`
 --
 ALTER TABLE `documentos_exoplanetas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `datos_exoplanetas`
+--
+ALTER TABLE `datos_exoplanetas`
+  ADD CONSTRAINT `datos_exoplanetas_ibfk_1` FOREIGN KEY (`documento_id`) REFERENCES `documentos_exoplanetas` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

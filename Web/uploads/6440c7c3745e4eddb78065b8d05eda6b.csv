@@ -1,0 +1,5 @@
+id,matricula,puntaje_salud_fisica,diagnostico_salud_fisica,IMC,diagnostico_nutricion,puntaje_tda,diagnostico_tda,puntaje_apnea,diagnostico_apnea,puntaje_insomnio,diagnostico_insomnio,puntaje_salud_familiar,diagnostico_salud_familiar,puntaje_diabetes,diagnostico_diabetes,puntaje_cefalea,diagnostico_cefalea,puntaje_adicciones_a,diagnostico_adicciones_a,puntaje_cagea,diagnostico_cagea,puntaje_adicciones_t,diagnostico_adicciones_t,puntaje_caget,diagnostico_caget,puntaje_its,diagnostico_its
+25,1871009,,"RIESGO BAJO",0,,0,,0,,0,,0,,0,,0,,0,,,,0,,,,0,
+27,1871010,,"RIESGO BAJO",27.0416,"RIESGO ALTO SOBREPES",0,"Riesgo BAJO",4,"Riesgo ALTO",3,"Riesgo BAJO",6,"Riesgo ALTO",1,"Riesgo BAJO",2,"Riesgo ALTO",0,,,,0,,,,0,
+28,1645998,,"RIESGO BAJO",27.0416,"RIESGO ALTO SOBREPES",0,"Riesgo BAJO",4,"Riesgo ALTO",0,"Riesgo BAJO",6,"Riesgo ALTO",1,"Riesgo BAJO",2,"Riesgo ALTO",0,"Riesgo BAJO",,,0,"Riesgo BAJO",,,0,"Riesgo BAJO"
+31,1871004,,"RIESGO BAJO",27.0416,"RIESGO ALTO SOBREPES",0,"Riesgo BAJO",0,"Riesgo BAJO",0,"Riesgo BAJO",2,"Riesgo MEDIO",0,,0,,0,,,,0,,,,0,

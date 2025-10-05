@@ -143,12 +143,13 @@
         <div class="container mx-auto max-w-4xl">
             <div class="bg-slate-800 rounded-xl p-8 glow">
                 <h2 class="text-2xl font-bold mb-6 text-center">Sube tus Documentos</h2>
+                <button id="descargar-plantilla" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors text-center" style="position: relative; top: -60px;">Descargar plantilla</button>
                 
                 <div id="upload-area" class="border-2 border-dashed border-blue-500 rounded-lg p-8 text-center mb-6 cursor-pointer transition-colors hover:bg-slate-700">
                     <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-4"></i>
                     <p class="text-lg mb-2">Arrastra tus archivos aquí o haz clic para seleccionar</p>
                     <p class="text-sm text-slate-400">Formatos aceptados: PDF, TXT, CSV, JSON (Máx. 10MB por archivo)</p>
-                    <input type="file" id="file-input" class="hidden" multiple accept=".pdf,.txt,.csv,.json">
+                    <input type="file" id="file-input" class="hidden" multiple accept=".pdf,.txt,.csv,.json,.xlsx">
                 </div>
                 
                 <div id="file-list" class="mb-6">
@@ -451,12 +452,12 @@
                     const file = files[i];
                     
                     // Validar tipo de archivo
-                    const validTypes = ['application/pdf', 'text/plain', 'text/csv', 'application/json'];
+                    const validTypes = ['application/pdf', 'text/plain', 'text/csv', 'text/xlsx', 'application/json'];
                     const fileExtension = file.name.split('.').pop().toLowerCase();
-                    const validExtensions = ['pdf', 'txt', 'csv', 'json'];
-                    
+                    const validExtensions = ['pdf', 'txt', 'csv', 'json', 'xlsx'];
+
                     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
-                        alert(`El archivo ${file.name} no es de un tipo válido. Solo se permiten PDF, TXT, CSV y JSON.`);
+                        alert(`El archivo ${file.name} no es de un tipo válido. Solo se permiten PDF, TXT, CSV, JSON y XLSX.`);
                         continue;
                     }
                     
@@ -544,6 +545,12 @@
                 e.preventDefault();
                 e.stopPropagation();
                 window.location.href = 'http://localhost:5000/api/descargar-todos';
+            });
+
+            $('#descargar-plantilla').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = 'http://localhost:5000/api/descargar-plantilla';
             });
 
             // Enviar formulario

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="satellite.svg" />   
+    <title>FLDSMDFR - Contribuye a la Búsqueda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            background-color: black;
+        }
+        .space-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+        }
+        .galaxy-bg {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB4PSIwIiB5PSIwIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSgzMCkiPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjAuNSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI3BhdHRlcm4pIi8+PC9zdmc+');
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        
+        .fondo-texto{
+            background-color: rgba(15, 23, 42, 0.6); 
+            border-radius: 50px; 
+            padding: 15px;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+
+        .section {
+            height: 33.33vh;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            
+            /* Máscara para difuminar bordes superior e inferior */
+            mask-image: linear-gradient(
+                to bottom,
+                transparent 0%,
+                black 8%,
+                black 85%,
+                transparent 100%
+            );
+            -webkit-mask-image: linear-gradient(
+                to bottom,
+                transparent 0%,
+                black 8%,
+                black 85%,
+                transparent 100%
+            );
+        }
+    </style>
+</head>
+<body class="min-h-screen galaxy-bg">
+    <!-- Header -->
+    <header class="space-gradient text-white py-4 px-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div id="logo" class="flex items-center space-x-2" style="cursor: pointer;">
+                <i class="fas fa-satellite text-2xl text-blue-400"></i>
+                <h1 class="text-2xl font-bold">FLDSMDFR</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" id="Inicio" class="hover:text-blue-300 transition-colors">Inicio</a>
+                <a href="#" id="Instrucciones" class="hover:text-blue-300 transition-colors">Instrucciones</a>
+                <a href="#" id="Aportar" class="hover:text-blue-300 transition-colors">Aportar</a>
+                <a href="#" id="Resultados" class="hover:text-blue-300 transition-colors">Resultados</a>
+            </nav>
+            <button class="md:hidden text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="DivInicio" class="py-16 px-6 flex items-center h-screen section" style="background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'); background-size: cover; background-position: center;">
+        <div class="container mx-auto max-w-4xl text-center fondo-texto">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Ayuda a Descubrir Nuevos Exoplanetas</h1>
+            <p class="text-xl mb-8 text-blue-200">Tu contribución puede ayudar a entrenar nuestro sistema de machine learning para identificar planetas más allá de nuestro sistema solar</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button id="btnAportar" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-upload"></i>
+                    Subir Documentos
+                </button>
+                <button id="btnMasInfo" class="bg-transparent border border-blue-500 hover:bg-blue-900 text-blue-300 font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-info-circle"></i>
+                    Más Información
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section id="DivInstrucciones" class="py-12 px-6 flex items-center h-screen section" style="background-image: url('https://images.unsplash.com/photo-1610296669228-602fa827fc1f?q=80&w=1075&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; background-position: center;">
+        <div class="container mx-auto max-w-5xl fondo-texto">
+            <h1 class="text-4xl md:text-5xl font-bold text-center mb-6">¿Cómo Funciona?</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-800 p-6 rounded-xl card-hover">
+                    <div class="bg-blue-900 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-file-upload text-blue-300 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">1. Sube tus Documentos</h3>
+                    <p class="text-slate-300">Comparte tus datos astronómicos, investigaciones o análisis sobre exoplanetas.</p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl card-hover">
+                    <div class="bg-purple-900 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-brain text-purple-300 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">2. Entrena nuestro ML</h3>
+                    <p class="text-slate-300">Tu información ayuda a mejorar nuestros algoritmos de detección de exoplanetas.</p>
+                </div>
+                <div class="bg-slate-800 p-6 rounded-xl card-hover">
+                    <div class="bg-green-900 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-search text-green-300 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">3. Descubre Nuevos Mundos</h3>
+                    <p class="text-slate-300">Juntos podemos identificar planetas que antes eran invisibles para nosotros.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section id="DivAportar" class="py-12 px-6 flex items-center h-screen section" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1172&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; background-position: center;">
+        <div class="container mx-auto max-w-4xl">
+            <div class="bg-slate-800 rounded-xl p-8 glow">
+                <h2 class="text-2xl font-bold mb-6 text-center">Sube tus Documentos</h2>
+                
+                <div id="upload-area" class="border-2 border-dashed border-blue-500 rounded-lg p-8 text-center mb-6 cursor-pointer transition-colors hover:bg-slate-700">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-blue-400 mb-4"></i>
+                    <p class="text-lg mb-2">Arrastra tus archivos aquí o haz clic para seleccionar</p>
+                    <p class="text-sm text-slate-400">Formatos aceptados: PDF, TXT, CSV, JSON (Máx. 10MB por archivo)</p>
+                    <input type="file" id="file-input" class="hidden" multiple accept=".pdf,.txt,.csv,.json">
+                </div>
+                
+                <div id="file-list" class="mb-6">
+                    <!-- Los archivos seleccionados aparecerán aquí -->
+                </div>
+                
+                <div class="mb-6">
+                    <label for="donador" class="block text-sm font-medium mb-2">Tu nombre o alias (opcional)</label>
+                    <input type="text" id="donador" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Como te recordemos en la comunidad...">
+                    <label for="description" class="block text-sm font-medium mb-2">Descripción de los documentos</label>
+                    <textarea id="description" rows="4" class="w-full bg-slate-700 border border-slate-600 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Describe el contenido de tus documentos, el tipo de datos que contienen y cualquier información relevante..."></textarea>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="consent" class="mr-2">
+                        <label for="consent" class="text-sm">Acepto que mis datos sean utilizados para entrenar el modelo de ML</label>
+                    </div>
+                    <button id="submit-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                        <i class="fas fa-paper-plane"></i>
+                        Enviar Documentos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resultaod de la comunidad -->
+    <section id="DivResultados" class="py-12 px-6 flex items-center min-h-screen" style="background-image: url('https://images.unsplash.com/photo-1447433589675-4aaa569f3e05?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); background-size: cover; background-position: center;">
+        <div class="container mx-auto max-w-6xl fondo-texto">
+            <h2 class="text-3xl font-bold text-center mb-6">Resultados de la comunidad</h2>
+            <p class="text-center text-slate-300 mb-8">Aquí vas a poder encontrar todos los resultados obtenidos de acuerdo a los archivos que nos han proporcionado las amables personas que apoyan este proyecto.</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Columna izquierda: Características de planetas con barras de porcentaje -->
+                <div class="bg-slate-800 rounded-xl p-6 card-hover">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-300">Características Planetarias Detectadas</h3>
+                    <div class="space-y-4">
+                        <!-- Item 1 -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Planetas en zona habitable</span>
+                                <span class="text-blue-300 font-semibold">68%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-green-500 h-2.5 rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 2 -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Composición rocosa</span>
+                                <span class="text-blue-300 font-semibold">42%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 42%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 3 -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Presencia de agua</span>
+                                <span class="text-blue-300 font-semibold">23%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-blue-500 h-2.5 rounded-full" style="width: 23%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 4 -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Atmósfera detectable</span>
+                                <span class="text-blue-300 font-semibold">35%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-purple-500 h-2.5 rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Item 5 -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Temperatura estable</span>
+                                <span class="text-blue-300 font-semibold">29%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-red-500 h-2.5 rounded-full" style="width: 29%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha dividida en 3 filas -->
+                <div class="space-y-6">
+                    <!-- Fila 1: Planetas con posibilidad de vida -->
+                    <div class="bg-slate-800 rounded-xl p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4 text-green-300">Planetas con Posibilidad de Vida</h3>
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-green-500 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-globe-americas text-white text-xl"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">Kepler-442b</span>
+                                <span class="text-xs text-green-400">84% similitud</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-sun text-white text-xl"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">TRAPPIST-1e</span>
+                                <span class="text-xs text-green-400">79% similitud</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mb-2">
+                                    <i class="fas fa-moon text-white text-xl"></i>
+                                </div>
+                                <span class="text-sm text-slate-300">Proxima Centauri b</span>
+                                <span class="text-xs text-green-400">72% similitud</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Dividida en 2 columnas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Archivos recopilados -->
+                        <div class="bg-slate-800 rounded-xl p-6 card-hover">
+                            <h3 class="text-xl font-semibold mb-4 text-blue-300">Archivos Recopilados</h3>
+                            <div class="text-center">
+                                <div id="archivosRecopilados" class="text-4xl font-bold text-blue-400 mb-2">Cargando...</div>
+                                <p class="text-slate-300 text-sm">documentos procesados</p>
+                                <div class="mt-4 flex justify-center">
+                                    <div class="flex space-x-2">
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tiempo de respuesta ML -->
+                        <div class="bg-slate-800 rounded-xl p-6 card-hover">
+                            <h3 class="text-xl font-semibold mb-4 text-purple-300">Tiempo de Respuesta</h3>
+                            <div class="text-center">
+                                <div class="text-4xl font-bold text-purple-400 mb-2">3.2s</div>
+                                <p class="text-slate-300 text-sm">promedio por análisis</p>
+                                <div class="mt-4">
+                                    <div class="inline-flex items-center bg-purple-900 text-purple-200 text-xs px-2 py-1 rounded-full">
+                                        <i class="fas fa-bolt mr-1"></i>
+                                        Alta eficiencia
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Número de donadores -->
+                    <div class="bg-slate-800 rounded-xl p-6 card-hover">
+                        <h3 class="text-xl font-semibold mb-4 text-yellow-300">Contribuyentes de la Comunidad</h3>
+                        <div class="text-center">
+                            <div id="contador-donadores" class="text-4xl font-bold text-yellow-400 mb-2">Cargando...</div>
+                            <p class="text-slate-300 text-sm">personas han contribuido</p>
+                            <div class="mt-4 flex justify-center">
+                                <div class="flex -space-x-2">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full border-2 border-slate-800"></div>
+                                    <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-600 rounded-full border-2 border-slate-800"></div>
+                                    <div class="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-600 rounded-full border-2 border-slate-800"></div>
+                                    <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full border-2 border-slate-800"></div>
+                                    <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-blue-600 rounded-full border-2 border-slate-800 flex items-center justify-center"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="space-gradient text-white py-8 px-6">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Primera columna expandida -->
+                <div class="md:col-span-2">
+                    <h3 class="text-lg font-semibold mb-4">A World Away: Hunting for Exoplanets with AI</h3>
+                    <p class="text-slate-300">Los datos de varias misiones espaciales de estudio de exoplanetas han permitido descubrir miles de nuevos planetas fuera de nuestro sistema solar, pero la mayoría de estos exoplanetas se identificaron manualmente. Con los avances en inteligencia artificial y aprendizaje automático (IA/ML), es posible analizar automáticamente grandes conjuntos de datos recopilados por estas misiones para identificar exoplanetas. Su desafío es crear un modelo AI/ML que esté entrenado en uno o más de los conjuntos de datos de exoplanetas de código abierto que ofrece la NASA y que pueda analizar nuevos datos para identificar exoplanetas con precisión.</p>
+                </div>
+                
+                <!-- Segunda columna (Recursos) -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Recursos</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" id="descargar-todos" class="text-slate-300 hover:text-white transition-colors">Documentos aportados</a></li>
+                        <li><a href="#" class="text-slate-300 hover:text-white transition-colors">Resultados obtenidos</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Tercera columna (Contacto) -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-envelope text-blue-400"></i>
+                            <span class="text-slate-300">ana.jassocs@uanl.edu.mx</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="fas fa-globe text-blue-400"></i>
+                            <span class="text-slate-300">https://github.com/Ana-Jasso</span>
+                        </li>
+                    </ul>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="https://www.spaceappschallenge.org/2025/find-a-team/from-learners-to-developers-software-mechatronics-data-findings-amp-research-fldsmdfr/?tab=members" target="_blank" class="text-slate-300 hover:text-white transition-colors">
+                            <i class="fa-solid fa-meteor"></i>
+                        </a>
+                        <a href="https://github.com/Ana-Jasso/ExoMinerAI" target="_blank" class="text-slate-300 hover:text-white transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/ana-laura-jasso/" target="_blank" class="text-slate-300 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-700 mt-8 pt-6 text-center text-slate-400">
+                <p>From Learners to Developers: Software, Mechatronics, Data, Findings & Research (FLDSMDFR)</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-800 rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-2">¡Éxito!</h3>
+                <p class="text-slate-300 mb-6">Tus documentos han sido enviados correctamente. Gracias por tu contribución a la búsqueda de exoplanetas.</p>
+                <button id="close-modal" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                    Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let uploadedFiles = [];
+            
+            // Event listeners para el área de subida - CORREGIDO
+            $('#upload-area').on('click', function(e) {
+                // Prevenir que el evento se propague y cause recursión
+                e.stopPropagation();
+                $('#file-input').trigger('click');
+            });
+            
+            // Prevenir que el evento click del file input se propague
+            $('#file-input').on('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            $('#upload-area').on('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).addClass('bg-slate-700');
+            });
+            
+            $('#upload-area').on('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('bg-slate-700');
+            });
+            
+            $('#upload-area').on('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(this).removeClass('bg-slate-700');
+                
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length) {
+                    handleFiles(files);
+                }
+            });
+            
+            $('#file-input').on('change', function(e) {
+                e.stopPropagation();
+                if (this.files.length) {
+                    handleFiles(this.files);
+                    // Limpiar el input para permitir seleccionar el mismo archivo otra vez
+                    $(this).val('');
+                }
+            });
+            
+            // Función para manejar los archivos seleccionados
+            function handleFiles(files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // Validar tipo de archivo
+                    const validTypes = ['application/pdf', 'text/plain', 'text/csv', 'application/json'];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+                    const validExtensions = ['pdf', 'txt', 'csv', 'json'];
+                    
+                    if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+                        alert(`El archivo ${file.name} no es de un tipo válido. Solo se permiten PDF, TXT, CSV y JSON.`);
+                        continue;
+                    }
+                    
+                    // Validar tamaño (10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert(`El archivo ${file.name} es demasiado grande. El tamaño máximo permitido es 10MB.`);
+                        continue;
+                    }
+                    
+                    // Evitar duplicados
+                    const isDuplicate = uploadedFiles.some(f => f.name === file.name && f.size === file.size);
+                    if (!isDuplicate) {
+                        uploadedFiles.push(file);
+                    }
+                }
+                
+                updateFileList();
+            }
+            
+            // Actualizar la lista de archivos mostrada
+            function updateFileList() {
+                $('#file-list').empty();
+                
+                if (uploadedFiles.length === 0) {
+                    $('#file-list').html('<p class="text-slate-400 text-center py-4">No hay archivos seleccionados</p>');
+                    return;
+                }
+                
+                const listHeader = $('<div>').addClass('flex justify-between items-center mb-2').html(`
+                    <span class="font-medium">Archivos seleccionados:</span>
+                    <span class="text-sm text-slate-400">${uploadedFiles.length} archivo(s)</span>
+                `);
+                $('#file-list').append(listHeader);
+                
+                $.each(uploadedFiles, function(index, file) {
+                    const fileItem = $('<div>').addClass('flex justify-between items-center bg-slate-700 p-3 rounded-lg mb-2').html(`
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-file text-blue-400"></i>
+                            <div>
+                                <p class="font-medium">${file.name}</p>
+                                <p class="text-xs text-slate-400">${formatFileSize(file.size)}</p>
+                            </div>
+                        </div>
+                        <button class="text-red-400 hover:text-red-300 remove-file" data-index="${index}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `);
+                    $('#file-list').append(fileItem);
+                });
+                
+                // Agregar event listeners a los botones de eliminar
+                $('.remove-file').on('click', function(e) {
+                    e.stopPropagation();
+                    const index = parseInt($(this).data('index'));
+                    uploadedFiles.splice(index, 1);
+                    updateFileList();
+                });
+            }
+            
+            // Formatear tamaño de archivo
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Validar formulario antes de enviar
+            function validateForm() {
+                if (uploadedFiles.length === 0) {
+                    alert('Por favor, selecciona al menos un archivo para subir.');
+                    return false;
+                }
+                
+                if (!$('#consent').is(':checked')) {
+                    alert('Debes aceptar que tus datos sean utilizados para entrenar el modelo de ML.');
+                    return false;
+                }
+                
+                return true;
+            }
+
+            $('#descargar-todos').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = 'http://localhost:5000/api/descargar-todos';
+            });
+
+            // Enviar formulario
+            $('#submit-btn').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (validateForm()) {
+                    const $btn = $(this);
+                    $btn.prop('disabled', true);
+                    $btn.html('<i class="fas fa-spinner fa-spin"></i> Enviando...');
+                    
+                    // Crear FormData para enviar archivos
+                    const formData = new FormData();
+                    
+                    // Agregar archivos - USANDO LA VARIABLE uploadedFiles
+                    uploadedFiles.forEach((file, index) => {
+                        formData.append('files', file);
+                    });
+                    
+                    // Agregar otros datos del formulario
+                    formData.append('donador', $('#donador').val());
+                    formData.append('description', $('#description').val());
+                    formData.append('consent', $('#consent').is(':checked'));
+                    
+                    // Enviar al backend Python
+                    $.ajax({
+                        url: 'http://localhost:5000/upload',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            $('#success-modal').removeClass('hidden');
+                            $btn.prop('disabled', false);
+                            $btn.html('<i class="fas fa-paper-plane"></i> Enviar Documentos');
+                            
+                            // Limpiar formulario
+                            uploadedFiles = [];
+                            updateFileList();
+                            $('#donador').val('');
+                            $('#description').val('');
+                            $('#consent').prop('checked', false);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Error al subir archivos: ' + (xhr.responseJSON?.error || error));
+                            $btn.prop('disabled', false);
+                            $btn.html('<i class="fas fa-paper-plane"></i> Enviar Documentos');
+                        }
+                    });
+                }
+            });
+            
+            // Cerrar modal
+            $('#close-modal').on('click', function(e) {
+                e.stopPropagation();
+                $('#success-modal').addClass('hidden');
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            $('#success-modal').on('click', function(e) {
+                if (e.target === this) {
+                    $(this).addClass('hidden');
+                }
+            });
+            
+            // Inicializar lista de archivos
+            updateFileList();
+
+            // Función para cargar y mostrar el contador de archivos
+            function cargarContadorArchivos() {
+                $.ajax({
+                    url: 'http://localhost:5000/api/total-archivos',
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            $('#archivosRecopilados').text(response.total_archivos);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error cargando contador:', error);
+                        $('#contador-archivos').html('<span class="text-red-400">Error cargando</span>');
+                    }
+                });
+            }
+
+            // Función para cargar y mostrar el contador de archivos
+            function cargarContadorDonadores() {
+                $.ajax({
+                    url: 'http://localhost:5000/api/total-donadores',
+                    type: 'GET',
+                    success: function(response) {
+                        if (response.success) {
+                            $('#contador-donadores').text(response.total_donadores);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error cargando contador:', error);
+                        $('#contador-archivos').html('<span class="text-red-400">Error cargando</span>');
+                    }
+                });
+            }
+
+            cargarContadorArchivos()
+            cargarContadorDonadores()
+        });
+
+        $('#Inicio, #logo').click(function() {
+            $('html, body').animate({ 
+                scrollTop: $('#DivInicio').offset().top 
+            }, 800);
+        });
+
+        $('#Instrucciones, #btnMasInfo').click(function() {
+            $('html, body').animate({ 
+                scrollTop: $('#DivInstrucciones').offset().top 
+            }, 800);
+        });
+
+        $('#Aportar, #btnAportar').click(function() {
+            $('html, body').animate({ 
+                scrollTop: $('#DivAportar').offset().top 
+            }, 800);
+        });
+
+        $('#Resultados').click(function() {
+            $('html, body').animate({ 
+                scrollTop: $('#DivResultados').offset().top 
+            }, 800);
+        });
+    </script>
+</body>
+</html>
